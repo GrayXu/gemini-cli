@@ -56,6 +56,7 @@ import {
   DEFAULT_GEMINI_MODEL,
   DEFAULT_GEMINI_MODEL_AUTO,
   isAutoModel,
+  isModelAlias,
   isPreviewModel,
   PREVIEW_GEMINI_FLASH_MODEL,
   PREVIEW_GEMINI_MODEL,
@@ -471,6 +472,7 @@ export interface ConfigParameters {
   includeDirectories?: string[];
   bugCommand?: BugCommandSettings;
   model: string;
+  modelSpecifiedByCliFlag?: boolean;
   disableLoopDetection?: boolean;
   maxSessionTurns?: number;
   experimentalZedIntegration?: boolean;
@@ -617,6 +619,7 @@ export class Config {
   private readonly cwd: string;
   private readonly bugCommand: BugCommandSettings | undefined;
   private model: string;
+  private readonly modelSpecifiedByCliFlag: boolean;
   private readonly disableLoopDetection: boolean;
   // null = unknown (quota not fetched); true = has access; false = definitively no access
   private hasAccessToPreviewModel: boolean | null = null;
@@ -819,6 +822,7 @@ export class Config {
     this.fileDiscoveryService = params.fileDiscoveryService ?? null;
     this.bugCommand = params.bugCommand;
     this.model = params.model;
+    this.modelSpecifiedByCliFlag = params.modelSpecifiedByCliFlag ?? false;
     this.disableLoopDetection = params.disableLoopDetection ?? false;
     this._activeModel = params.model;
     this.enableAgents = params.enableAgents ?? false;
@@ -1299,6 +1303,14 @@ export class Config {
 
   getModel(): string {
     return this.model;
+  }
+
+  isModelSpecifiedByCliFlag(): boolean {
+    return this.modelSpecifiedByCliFlag;
+  }
+
+  shouldPreserveExactModel(model: string): boolean {
+    return this.modelSpecifiedByCliFlag && !isModelAlias(model);
   }
 
   getDisableLoopDetection(): boolean {

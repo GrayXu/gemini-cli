@@ -9,7 +9,11 @@ import { OverrideStrategy } from './overrideStrategy.js';
 import type { RoutingContext } from '../routingStrategy.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
 import type { Config } from '../../config/config.js';
-import { DEFAULT_GEMINI_MODEL_AUTO } from '../../config/models.js';
+import {
+  DEFAULT_GEMINI_MODEL_AUTO,
+  PREVIEW_GEMINI_3_1_MODEL,
+  PREVIEW_GEMINI_MODEL,
+} from '../../config/models.js';
 
 describe('OverrideStrategy', () => {
   const strategy = new OverrideStrategy();
@@ -72,5 +76,33 @@ describe('OverrideStrategy', () => {
 
     expect(decision).not.toBeNull();
     expect(decision?.model).toBe(requestedModel);
+  });
+
+  it('should preserve an explicitly flagged CLI model without resolving to Gemini 3.1', async () => {
+    const mockConfig = {
+      getModel: () => PREVIEW_GEMINI_MODEL,
+      shouldPreserveExactModel: () => true,
+      getGemini31LaunchedSync: () => true,
+    } as unknown as Config;
+
+    const decision = await strategy.route(mockContext, mockConfig, mockClient);
+
+    expect(decision).not.toBeNull();
+    expect(decision?.model).toBe(PREVIEW_GEMINI_MODEL);
+    expect(decision?.model).not.toBe(PREVIEW_GEMINI_3_1_MODEL);
+    expect(decision?.metadata.reasoning).toContain('explicit CLI model flag');
+  });
+
+  it('should still resolve to Gemini 3.1 when model was not explicitly flagged via CLI', async () => {
+    const mockConfig = {
+      getModel: () => PREVIEW_GEMINI_MODEL,
+      shouldPreserveExactModel: () => false,
+      getGemini31LaunchedSync: () => true,
+    } as unknown as Config;
+
+    const decision = await strategy.route(mockContext, mockConfig, mockClient);
+
+    expect(decision).not.toBeNull();
+    expect(decision?.model).toBe(PREVIEW_GEMINI_3_1_MODEL);
   });
 });

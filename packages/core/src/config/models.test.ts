@@ -13,6 +13,7 @@ import {
   isCustomModel,
   supportsModernFeatures,
   isAutoModel,
+  isModelAlias,
   getDisplayString,
   DEFAULT_GEMINI_MODEL,
   PREVIEW_GEMINI_MODEL,
@@ -262,6 +263,22 @@ describe('isAutoModel', () => {
     expect(isAutoModel(DEFAULT_GEMINI_MODEL)).toBe(false);
     expect(isAutoModel(PREVIEW_GEMINI_MODEL)).toBe(false);
     expect(isAutoModel('some-random-model')).toBe(false);
+  });
+});
+
+describe('isModelAlias', () => {
+  it('should return true for alias and auto model names', () => {
+    expect(isModelAlias(GEMINI_MODEL_ALIAS_AUTO)).toBe(true);
+    expect(isModelAlias(GEMINI_MODEL_ALIAS_PRO)).toBe(true);
+    expect(isModelAlias(GEMINI_MODEL_ALIAS_FLASH)).toBe(true);
+    expect(isModelAlias(PREVIEW_GEMINI_MODEL_AUTO)).toBe(true);
+    expect(isModelAlias(DEFAULT_GEMINI_MODEL_AUTO)).toBe(true);
+  });
+
+  it('should return false for concrete models', () => {
+    expect(isModelAlias(PREVIEW_GEMINI_MODEL)).toBe(false);
+    expect(isModelAlias(PREVIEW_GEMINI_3_1_MODEL)).toBe(false);
+    expect(isModelAlias(DEFAULT_GEMINI_MODEL)).toBe(false);
   });
 });
 

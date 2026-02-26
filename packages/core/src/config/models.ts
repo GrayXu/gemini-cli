@@ -209,6 +209,19 @@ export function isAutoModel(model: string): boolean {
 }
 
 /**
+ * Checks if the model string is an alias-like input that should be resolved
+ * to a concrete model name.
+ */
+export function isModelAlias(model: string): boolean {
+  return (
+    isAutoModel(model) ||
+    model === GEMINI_MODEL_ALIAS_PRO ||
+    model === GEMINI_MODEL_ALIAS_FLASH ||
+    model === GEMINI_MODEL_ALIAS_FLASH_LITE
+  );
+}
+
+/**
  * Checks if the model supports multimodal function responses (multimodal data nested within function response).
  * This is supported in Gemini 3.
  *

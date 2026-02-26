@@ -31,6 +31,20 @@ export class OverrideStrategy implements RoutingStrategy {
       return null;
     }
 
+    const preserveExactModel =
+      config.shouldPreserveExactModel?.(overrideModel) ?? false;
+
+    if (preserveExactModel) {
+      return {
+        model: overrideModel,
+        metadata: {
+          source: this.name,
+          latencyMs: 0,
+          reasoning: `Routing bypassed by explicit CLI model flag. Using exact model: ${overrideModel}`,
+        },
+      };
+    }
+
     // Return the overridden model name.
     return {
       model: resolveModel(

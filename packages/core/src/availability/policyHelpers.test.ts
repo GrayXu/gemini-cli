@@ -17,6 +17,7 @@ import {
   DEFAULT_GEMINI_MODEL_AUTO,
   PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL,
   PREVIEW_GEMINI_3_1_MODEL,
+  PREVIEW_GEMINI_MODEL,
 } from '../config/models.js';
 import { AuthType } from '../core/contentGenerator.js';
 
@@ -153,6 +154,17 @@ describe('policyHelpers', () => {
       const chain = resolvePolicyChain(config);
       expect(chain[0]?.model).toBe(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL);
       expect(chain[1]?.model).toBe('gemini-3-flash-preview');
+    });
+
+    it('preserves explicit CLI preview model as a single-model chain', () => {
+      const config = createMockConfig({
+        getModel: () => PREVIEW_GEMINI_MODEL,
+        getGemini31LaunchedSync: () => true,
+        shouldPreserveExactModel: () => true,
+      });
+      const chain = resolvePolicyChain(config);
+      expect(chain).toHaveLength(1);
+      expect(chain[0]?.model).toBe(PREVIEW_GEMINI_MODEL);
     });
   });
 

@@ -42,6 +42,12 @@ export function resolvePolicyChain(
 ): ModelPolicyChain {
   const modelFromConfig =
     preferredModel ?? config.getActiveModel?.() ?? config.getModel();
+  const preserveExactModel =
+    config.shouldPreserveExactModel?.(modelFromConfig) ?? false;
+  if (preserveExactModel) {
+    return createSingleModelChain(modelFromConfig);
+  }
+
   const configuredModel = config.getModel();
 
   let chain;
